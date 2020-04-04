@@ -22,7 +22,7 @@ class TodoForm extends Component {
           rules={[
             {
               required: true,
-              message: "Please input your username!"
+              message: "What do you want to do?"
             }
           ]}
         >
@@ -35,7 +35,7 @@ class TodoForm extends Component {
           rules={[
             {
               required: true,
-              message: "Please input your password!"
+              message: "Please input your Date!"
             }
           ]}
         >

@@ -6,7 +6,7 @@ import Users from "./Users";
 import UserForm from "./UserForm";
 import TodoForm from "./TodoForm";
 import { connect } from "react-redux";
-import { todoActions, userActions } from '../reducers/actions';
+import { todoActions, userActions } from "../reducers/actions";
 
 const StyledMainContainer = styled.div`
   margin-left: 20px;
@@ -18,54 +18,96 @@ class TabContent extends Component {
   state = {
     visible: false,
     fieldName: "",
-    name: '',
-    email: ''
+    name: "",
+    email: "",
+    edit: false,
+    userData: [],
   };
 
   showModal = (e, s) => {
     this.setState({
       visible: true,
-      fieldName: s
+      fieldName: s,
     });
   };
 
-  handleTodo = e => {
+  handleTodo = (e) => {
     let data = {
       Todo: this.props.todoReducer.Todo,
       date: this.props.todoReducer.date,
-      key: this.props.todoReducer.todoData.length
+      key: this.props.todoReducer.todoData.length,
     };
-    this.props.dispatch(todoActions.setData([...this.props.todoReducer.todoData, data]));
+    this.props.dispatch(
+      todoActions.setData([...this.props.todoReducer.todoData, data])
+    );
     this.setState({
-      visible: false
+      visible: false,
+      edit: false,
     });
   };
 
-  handleUser = e => {
-    let data = {
-      name: this.props.userReducer.name,
-      email: this.props.userReducer.email,
-      key: this.props.userReducer.userData.length
-    };
-    this.props.dispatch(userActions.setData([...this.props.userReducer.userData, data]));
-    this.setState({
-      visible: false
-    });
-  }
+  handleUser = (e) => {
+    const { edit } = this.state;
+    if (!edit) {
+      let data = {
+        name: this.props.userReducer.name,
+        email: this.props.userReducer.email,
+        key: this.props.userReducer.userData.length,
+      };
+      this.props.dispatch(
+        userActions.setData([...this.props.userReducer.userData, data])
+      );
+      this.setState({
+        visible: false,
+        edit: false,
+      });
+    } else {
+      const { userData } = this.props.userReducer;
+      const { userKey, name, email } = this.state;
+      const found = userData.findIndex((a) => userKey === a.key);
+      if (found > -1) {
+        let payload = userData;
+        payload[found] = {
+          name: this.props.userReducer.name,
+          email: this.props.userReducer.email,
+          key: userKey,
+        };
+        this.props.dispatch(userActions.setData(payload));
+      }
+      this.setState({ edit: false, visible: false });
+    }
+  };
 
-  handleCancel = e => {
+  handleCancel = (e) => {
     this.setState({
-      visible: false
+      visible: false,
     });
   };
 
-  callback = key => {
+  callback = (key) => {
     console.log(key);
   };
-  
-  handleEdit = record => {
-   this.setState({name: record.name, email: record.email, userKey: record.key, visible: true})
-  }
+
+  handleEdit = (record) => {
+    this.setState({
+      name: record.name,
+      email: record.email,
+      userKey: record.key,
+      visible: true,
+      edit: true,
+    });
+  };
+
+  triggerModal = (e, s) => {
+    this.showModal(e, s);
+    this.setState({ name: "", email: "" });
+  };
+
+  handleDelete = (record) => {
+    const { userData } = this.props.userReducer;
+    const payload = userData.filter((a) => a.name !== record.name);
+    this.props.dispatch(userActions.setData(payload));
+  };
 
   render() {
     const { visible, fieldName } = this.state;
@@ -75,8 +117,12 @@ class TabContent extends Component {
           <TabPane tab="Todos" key="1">
             <Todos showModal={this.showModal} />
           </TabPane>
-          <TabPane tab="users" key="2">
-            <Users showModal={this.showModal} handleEdit ={this.handleEdit} />
+          <TabPane forceRender="true" tab="users" key="2">
+            <Users
+              triggerModal={this.triggerModal}
+              handleEdit={this.handleEdit}
+              handleDelete={this.handleDelete}
+            />
           </TabPane>
         </Tabs>
         {visible && (
@@ -84,10 +130,16 @@ class TabContent extends Component {
             <Modal
               title={fieldName}
               visible={this.state.visible}
-              onOk={fieldName !== 'Create User' ? this.handleTodo : this.handleUser}
+              onOk={
+                fieldName !== "Create User" ? this.handleTodo : this.handleUser
+              }
               onCancel={this.handleCancel}
             >
-              {fieldName === "Create User" ? <UserForm userRecords = {this.state} /> : <TodoForm />}
+              {fieldName === "Create User" ? (
+                <UserForm userRecords={this.state} />
+              ) : (
+                <TodoForm />
+              )}
             </Modal>
           </div>
         )}
@@ -96,5 +148,5 @@ class TabContent extends Component {
   }
 }
 
-const mapStateToProps = state => state;
+const mapStateToProps = (state) => state;
 export default connect(mapStateToProps)(TabContent);
