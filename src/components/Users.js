@@ -16,13 +16,13 @@ class Users extends Component {
       title: "name",
       dataIndex: "name",
       key: "name",
-      render: (text) => <h4>{text}</h4>,
+      render: (text) => <p style={{fontSize: '15px'}}>{text}</p>,
     },
     {
       title: "email",
       dataIndex: "email",
       key: "email",
-      render: (text) => <h4>{text}</h4>,
+      render: (text) => <p style={{fontSize: '15px'}}>{text}</p>,
     },
     {
       title: "Action",
@@ -32,7 +32,7 @@ class Users extends Component {
           <span>
             <a
               style={{ marginRight: 16 }}
-              onClick={() => this.props.handleEdit(record)}
+              onClick={() => this.props.handleEdit(record, "Create User")}
             >
               Edit{" "}
             </a>
@@ -57,9 +57,7 @@ class Users extends Component {
   render() {
     return (
       <div>
-        <StyledButton
-          onClick={(e) => this.props.triggerModal(e, "Create User")}
-        >
+        <StyledButton onClick={(e) => this.props.showModal(e, "Create User")}>
           Create Users
         </StyledButton>
         <Table columns={this.columns} dataSource={[...this.state.data]} />

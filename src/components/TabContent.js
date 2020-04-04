@@ -20,33 +20,66 @@ class TabContent extends Component {
     fieldName: "",
     name: "",
     email: "",
+    Todo: "",
+    date: "",
+    todoKey: "",
     edit: false,
     userData: [],
+    tab: "",
+    confirmLoading: false,
   };
 
   showModal = (e, s) => {
     this.setState({
       visible: true,
       fieldName: s,
+      name: "",
+      email: "",
+      Todo: "",
+      date: "",
     });
   };
 
   handleTodo = (e) => {
-    let data = {
-      Todo: this.props.todoReducer.Todo,
-      date: this.props.todoReducer.date,
-      key: this.props.todoReducer.todoData.length,
-    };
-    this.props.dispatch(
-      todoActions.setData([...this.props.todoReducer.todoData, data])
-    );
-    this.setState({
-      visible: false,
-      edit: false,
-    });
+    this.setState({ confirmLoading: true });
+    const { edit } = this.state;
+    if (!edit) {
+      let data = {
+        Todo: this.props.todoReducer.Todo,
+        date: this.props.todoReducer.date,
+        key: this.props.todoReducer.todoData.length,
+      };
+      this.props.dispatch(
+        todoActions.setData([...this.props.todoReducer.todoData, data])
+      );
+      setTimeout(() => {
+        this.setState({
+          visible: false,
+          edit: false,
+          confirmLoading: false,
+        });
+      }, 1000);
+    } else {
+      const { todoData } = this.props.todoReducer;
+      const { todoKey } = this.state;
+      const found = todoData.findIndex((a) => todoKey === a.key);
+      if (found > -1) {
+        let payload = todoData;
+        payload[found] = {
+          Todo: this.props.todoReducer.Todo,
+          date: this.props.todoReducer.date,
+          key: todoKey,
+        };
+        this.props.dispatch(todoActions.setData(payload));
+      }
+      setTimeout(() => {
+        this.setState({ edit: false, visible: false, confirmLoading: false });
+      }, 1000);
+    }
   };
 
   handleUser = (e) => {
+    this.setState({ confirmLoading: true });
     const { edit } = this.state;
     if (!edit) {
       let data = {
@@ -57,13 +90,16 @@ class TabContent extends Component {
       this.props.dispatch(
         userActions.setData([...this.props.userReducer.userData, data])
       );
-      this.setState({
-        visible: false,
-        edit: false,
-      });
+      setTimeout(() => {
+        this.setState({
+          visible: false,
+          edit: false,
+          confirmLoading: false,
+        });
+      }, 1000);
     } else {
       const { userData } = this.props.userReducer;
-      const { userKey, name, email } = this.state;
+      const { userKey } = this.state;
       const found = userData.findIndex((a) => userKey === a.key);
       if (found > -1) {
         let payload = userData;
@@ -74,7 +110,9 @@ class TabContent extends Component {
         };
         this.props.dispatch(userActions.setData(payload));
       }
-      this.setState({ edit: false, visible: false });
+      setTimeout(() => {
+        this.setState({ edit: false, visible: false, confirmLoading: false });
+      }, 1000);
     }
   };
 
@@ -85,22 +123,39 @@ class TabContent extends Component {
   };
 
   callback = (key) => {
-    console.log(key);
+    this.setState({ tab: key });
   };
 
-  handleEdit = (record) => {
+  handleEdit = (record, s) => {
     this.setState({
       name: record.name,
       email: record.email,
       userKey: record.key,
       visible: true,
       edit: true,
+      fieldName: s,
     });
   };
 
-  triggerModal = (e, s) => {
-    this.showModal(e, s);
-    this.setState({ name: "", email: "" });
+  handleEditTodo = (record, s) => {
+    this.setState({
+      edit: true,
+      Todo: record.Todo,
+      date: record.date,
+      todoKey: record.key,
+      visible: true,
+      fieldName: s,
+    });
+  };
+
+  triggerTodoModal = (e, s) => {
+    this.showModal(e);
+    this.setState({ Todo: "", date: "", fieldName: s });
+  };
+
+  triggerUserModal = (e, s) => {
+    this.showModal(e);
+    this.setState({ name: "", email: "", fieldName: s });
   };
 
   handleDelete = (record) => {
@@ -109,17 +164,27 @@ class TabContent extends Component {
     this.props.dispatch(userActions.setData(payload));
   };
 
+  handleDeleteTodo = (record) => {
+    const { todoData } = this.props.todoReducer;
+    const payload = todoData.filter((a) => a.Todo !== record.Todo);
+    this.props.dispatch(todoActions.setData(payload));
+  };
+
   render() {
-    const { visible, fieldName } = this.state;
+    const { visible, fieldName, confirmLoading } = this.state;
     return (
       <StyledMainContainer>
         <Tabs defaultActiveKey="1" onChange={this.callback}>
           <TabPane tab="Todos" key="1">
-            <Todos showModal={this.showModal} />
+            <Todos
+              showModal={this.showModal}
+              handleEditTodo={this.handleEditTodo}
+              handleDeleteTodo={this.handleDeleteTodo}
+            />
           </TabPane>
-          <TabPane forceRender="true" tab="users" key="2">
+          <TabPane tab="users" key="2">
             <Users
-              triggerModal={this.triggerModal}
+              showModal={this.showModal}
               handleEdit={this.handleEdit}
               handleDelete={this.handleDelete}
             />
@@ -128,6 +193,7 @@ class TabContent extends Component {
         {visible && (
           <div>
             <Modal
+              confirmLoading={confirmLoading}
               title={fieldName}
               visible={this.state.visible}
               onOk={
@@ -138,7 +204,7 @@ class TabContent extends Component {
               {fieldName === "Create User" ? (
                 <UserForm userRecords={this.state} />
               ) : (
-                <TodoForm />
+                <TodoForm todoRecords={this.state} />
               )}
             </Modal>
           </div>
