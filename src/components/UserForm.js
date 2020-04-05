@@ -1,11 +1,9 @@
 import React, { Component } from "react";
 import { Form, Input } from "antd";
-import styled from "styled-components";
 import { connect } from "react-redux";
 import { userActions } from "../reducers/actions";
 
 class UserForm extends Component {
-
   formRef = React.createRef();
 
   onChange = (e, str) => {
@@ -16,21 +14,6 @@ class UserForm extends Component {
     }
   };
 
-  componentDidMount () {
-    console.log(this.props.userRecords, 'form ref')
-    this.formRef.current.setFieldsValue({
-      Userame: this.props.userRecords.name,
-      email: this.props.userRecords.email
-    })
-  }
-  componentDidUpdate () {
-    console.log(this.props.userRecords, 'form ref')
-    this.formRef.current.setFieldsValue({
-      Username: this.props.userRecords.name,
-      email: this.props.userRecords.email
-    })
-  }
-
   render() {
     return (
       <Form name="basic" ref={this.formRef}>
@@ -40,11 +23,15 @@ class UserForm extends Component {
           rules={[
             {
               required: true,
-              message: "Please input your username!"
-            }
+              message: "Please input your username!",
+            },
           ]}
         >
-          <Input type="string" onChange={e => this.onChange(e, "name")} />
+          <Input
+            defaultValue={this.props.userRecords.name}
+            type="string"
+            onChange={(e) => this.onChange(e, "name")}
+          />
         </Form.Item>
 
         <Form.Item
@@ -53,16 +40,30 @@ class UserForm extends Component {
           rules={[
             {
               required: true,
-              message: "Please input your password!"
-            }
+              message: "Please enter proper email id!",
+              validator: (rule, value) => {
+                let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                console.log(re, "re");
+                console.log(re.test(value), "value");
+                if (re.test(value)) {
+                  return Promise.resolve();
+                } else {
+                  return Promise.reject("Please enter proper email id!");
+                }
+              },
+            },
           ]}
         >
-          <Input type="email" onChange={e => this.onChange(e, "email")} />
+          <Input
+            defaultValue={this.props.userRecords.email}
+            type="email"
+            onChange={(e) => this.onChange(e, "email")}
+          />
         </Form.Item>
       </Form>
     );
   }
 }
 
-const mapStateToProps = state => state;
+const mapStateToProps = (state) => state;
 export default connect(mapStateToProps)(UserForm);

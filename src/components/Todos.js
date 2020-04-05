@@ -8,19 +8,18 @@ const StyledButton = styled(Button)`
 `;
 
 class Todos extends Component {
-
   columns = [
     {
       title: "Todo",
       dataIndex: "Todo",
       key: "Todo",
-      render: text => <h4>{text}</h4>
+      render: (text) => <p style={{ fontSize: "13px" }}>{text}</p>,
     },
     {
       title: "Date",
       dataIndex: "date",
       key: "date",
-      render: text => <h4>{text}</h4>
+      render: (text) => <p style={{ fontSize: "13px" }}>{text}</p>,
     },
     {
       title: "Action",
@@ -28,28 +27,32 @@ class Todos extends Component {
       render: (text, record) => {
         return (
           <span>
-            <a style={{ marginRight: 16 }} >Edit </a>
-            <a>Delete</a>
+            <a
+              style={{ marginRight: 16 }}
+              onClick={() => this.props.handleEditTodo(record, "Create Todo")}
+            >
+              Edit{" "}
+            </a>
+            <a onClick={() => this.props.handleDeleteTodo(record)}>Delete</a>
           </span>
         );
-      }
-    }
+      },
+    },
   ];
-
 
   render() {
     return (
       <div>
-        <StyledButton onClick={e => this.props.showModal(e, "Create Todo")}>
+        <StyledButton onClick={(e) => this.props.showModal(e, "Create Todo")}>
           Create Todos
         </StyledButton>
         <Table
           columns={this.columns}
-          dataSource={this.props.todoReducer.todoData}
+          dataSource={[...this.props.todoReducer.todoData]}
         />
       </div>
     );
   }
 }
-const mapStateToProps = state => state;
+const mapStateToProps = (state) => state;
 export default connect(mapStateToProps)(Todos);
