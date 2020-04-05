@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Tabs, Modal, Button, Form, Input } from "antd";
+import { Tabs, Modal } from "antd";
 import styled from "styled-components";
 import Todos from "./Todos";
 import Users from "./Users";
@@ -26,7 +26,7 @@ class TabContent extends Component {
     edit: false,
     userData: [],
     tab: "",
-    confirmLoading: false,
+    confirmLoading: false
   };
 
   showModal = (e, s) => {
@@ -41,82 +41,120 @@ class TabContent extends Component {
   };
 
   handleTodo = (e) => {
-    this.setState({ confirmLoading: true });
+    const { todoData, Todo, date } = this.props.todoReducer;
     const { edit } = this.state;
     if (!edit) {
+      if (!Todo || !date) {
+        return;
+      }
+      this.setState({ confirmLoading: true });
       let data = {
-        Todo: this.props.todoReducer.Todo,
-        date: this.props.todoReducer.date,
-        key: this.props.todoReducer.todoData.length,
+        Todo: Todo,
+        date: date,
+        key: todoData.length,
       };
-      this.props.dispatch(
-        todoActions.setData([...this.props.todoReducer.todoData, data])
-      );
+      this.props.dispatch(todoActions.setData([...todoData, data]));
       setTimeout(() => {
-        this.setState({
-          visible: false,
-          edit: false,
-          confirmLoading: false,
-        });
-      }, 1000);
+        this.setState(
+          {
+            visible: false,
+            edit: false,
+            confirmLoading: false,
+          },
+          () => {
+            this.props.dispatch(todoActions.setDate(""));
+            this.props.dispatch(todoActions.setAction(""));
+          }
+        );
+      }, 500);
     } else {
-      const { todoData } = this.props.todoReducer;
       const { todoKey } = this.state;
       const found = todoData.findIndex((a) => todoKey === a.key);
       if (found > -1) {
         let payload = todoData;
         payload[found] = {
-          Todo: this.props.todoReducer.Todo,
-          date: this.props.todoReducer.date,
+          Todo: Todo,
+          date: date,
           key: todoKey,
         };
         this.props.dispatch(todoActions.setData(payload));
       }
       setTimeout(() => {
-        this.setState({ edit: false, visible: false, confirmLoading: false });
-      }, 1000);
+        this.setState(
+          {
+            edit: false,
+            visible: false,
+            confirmLoading: false
+          },
+          () => {
+            this.props.dispatch(todoActions.setDate(""));
+            this.props.dispatch(todoActions.setAction(""));
+          }
+        );
+      }, 500);
     }
   };
 
   handleUser = (e) => {
-    this.setState({ confirmLoading: true });
+    const { name, email, userData } = this.props.userReducer;
     const { edit } = this.state;
     if (!edit) {
+      if (!name || !email) {
+        return;
+      }
+      this.setState({ confirmLoading: true });
       let data = {
-        name: this.props.userReducer.name,
-        email: this.props.userReducer.email,
-        key: this.props.userReducer.userData.length,
+        name: name,
+        email: email,
+        key: userData.length,
       };
-      this.props.dispatch(
-        userActions.setData([...this.props.userReducer.userData, data])
-      );
+      this.props.dispatch(userActions.setData([...userData, data]));
       setTimeout(() => {
-        this.setState({
-          visible: false,
-          edit: false,
-          confirmLoading: false,
-        });
-      }, 1000);
+        this.setState(
+          {
+            visible: false,
+            edit: false,
+            confirmLoading: false
+          },
+          () => {
+            this.props.dispatch(userActions.setName(""));
+            this.props.dispatch(userActions.setEmail(""));
+          }
+        );
+      }, 500);
     } else {
-      const { userData } = this.props.userReducer;
       const { userKey } = this.state;
       const found = userData.findIndex((a) => userKey === a.key);
       if (found > -1) {
         let payload = userData;
         payload[found] = {
-          name: this.props.userReducer.name,
-          email: this.props.userReducer.email,
+          name: name,
+          email: email,
           key: userKey,
         };
         this.props.dispatch(userActions.setData(payload));
       }
       setTimeout(() => {
-        this.setState({ edit: false, visible: false, confirmLoading: false });
-      }, 1000);
+        this.setState(
+          {
+            edit: false,
+            visible: false,
+            confirmLoading: false
+          },
+          () => {
+            this.props.dispatch(userActions.setName(""));
+            this.props.dispatch(userActions.setEmail(""));
+          }
+        );
+      }, 500);
     }
   };
 
   handleCancel = (e) => {
+    this.props.dispatch(todoActions.setDate(""));
+    this.props.dispatch(todoActions.setAction(""));
+    this.props.dispatch(userActions.setName(""));
+    this.props.dispatch(userActions.setEmail(""));
     this.setState({
       visible: false,
     });
@@ -127,6 +165,8 @@ class TabContent extends Component {
   };
 
   handleEdit = (record, s) => {
+    this.props.dispatch(userActions.setName(record.name));
+    this.props.dispatch(userActions.setEmail(record.email));
     this.setState({
       name: record.name,
       email: record.email,
@@ -138,6 +178,8 @@ class TabContent extends Component {
   };
 
   handleEditTodo = (record, s) => {
+    this.props.dispatch(todoActions.setAction(record.Todo));
+    this.props.dispatch(todoActions.setDate(record.date));
     this.setState({
       edit: true,
       Todo: record.Todo,

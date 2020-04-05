@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { Form, Input } from "antd";
-import styled from "styled-components";
 import { connect } from "react-redux";
 import { userActions } from "../reducers/actions";
 
@@ -41,7 +40,17 @@ class UserForm extends Component {
           rules={[
             {
               required: true,
-              message: "Please input your password!",
+              message: "Please enter proper email id!",
+              validator: (rule, value) => {
+                let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                console.log(re, "re");
+                console.log(re.test(value), "value");
+                if (re.test(value)) {
+                  return Promise.resolve();
+                } else {
+                  return Promise.reject("Please enter proper email id!");
+                }
+              },
             },
           ]}
         >

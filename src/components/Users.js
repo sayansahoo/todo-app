@@ -16,13 +16,13 @@ class Users extends Component {
       title: "name",
       dataIndex: "name",
       key: "name",
-      render: (text) => <p style={{fontSize: '15px'}}>{text}</p>,
+      render: (text) => <p style={{fontSize: '13px'}}>{text}</p>,
     },
     {
       title: "email",
       dataIndex: "email",
       key: "email",
-      render: (text) => <p style={{fontSize: '15px'}}>{text}</p>,
+      render: (text) => <p style={{fontSize: '13px'}}>{text}</p>,
     },
     {
       title: "Action",

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { DatePicker, Form, Input } from "antd";
+import { DatePicker, Form, Input, Alert } from "antd";
 import { todoActions } from "../reducers/actions";
 import { connect } from "react-redux";
 import moment from "moment";
@@ -10,7 +10,8 @@ class TodoForm extends Component {
   };
 
   setAction = (e) => {
-    this.props.dispatch(todoActions.setAction(e.target.value));
+    const todoValue = e.target.value;
+    this.props.dispatch(todoActions.setAction(todoValue));
   };
 
   render() {
@@ -41,7 +42,7 @@ class TodoForm extends Component {
           rules={[
             {
               required: true,
-              message: "Please input your Date!",
+              message: "Please input your Date!"
             },
           ]}
         >

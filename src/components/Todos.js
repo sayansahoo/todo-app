@@ -13,13 +13,13 @@ class Todos extends Component {
       title: "Todo",
       dataIndex: "Todo",
       key: "Todo",
-      render: (text) => <p style={{fontSize: '15px'}}>{text}</p>,
+      render: (text) => <p style={{ fontSize: "13px" }}>{text}</p>,
     },
     {
       title: "Date",
       dataIndex: "date",
       key: "date",
-      render: (text) => <p style={{fontSize: '15px'}}>{text}</p>,
+      render: (text) => <p style={{ fontSize: "13px" }}>{text}</p>,
     },
     {
       title: "Action",
